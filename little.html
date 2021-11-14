@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="little encryptor / decryptor">
+        <meta name="author" content="">
+        <title>little encryptor / decryptor</title>
+
+        <style>
+            @keyframes flash {
+              0% { background-color: #FF7F7F }
+              100% { background-color: white }
+            }
+            .flash {
+              animation-name: flash;
+              animation-duration: 1s;
+            }
+            body {
+                font-family: 'Fira Mono', 'Fira Code', Cousine, Consolas, 'Courier New', 'Lucida Sans Typewriter', Monaco, 'Andale Mono', Courier, monospace; 
+                font-size: 15px; 
+                text-align: left; 
+                line-height: 1.30;
+                font-variant-ligatures: none;
+            }
+            ul {
+              margin: 0;
+            }
+            .encoded { 
+              font-family: 'Fira Mono', 'Fira Code', Cousine, Consolas, 'Courier New', 'Lucida Sans Typewriter', Monaco, 'Andale Mono', Courier, monospace; 
+              font-size: 15px;
+            }
+            .leader { font-size: 15px; }
+            .spacer { font-size: 9px; }
+            .footer { font-size: 13px; }
+            .bodydiv { margin:0 auto; width:800px; }
+            .title {  margin-bottom:0; margin-top:0 }
+        </style>
+    </head>
+    <body>
+        <div class="bodydiv" >
+            <h2 class="title">little encryptor / decryptor</h2>
+            <b class="leader">A crypto.subtle-based tool</b>
+            <div class="spacer">&nbsp;</div>
+            <div><b>Passcode:&nbsp;</b> <input id="passcode" type="text" value="" size="75" class="encoded"/></div>
+            <div><b>Secret:&nbsp;&nbsp;&nbsp;</b> <input id="secret" type="text" class="encoded" value="" size="75"/></div>
+            <div><b>Encrypted:</b> <input id="encrypted" type="text" class="encoded" value="" size="75"/> </div>
+            <div class="spacer">&nbsp;</div>
+            <div><b>Instructions:</b></div>
+            <ul>
+               <li>Enter passcode and secret to encrypt.</li>
+               <li>Enter passcode and paste a previously encrypted value to display the secret that was encrypted</li>
+               <li>Enter passcode and delete the contents of encrypted to generate a new random salt.  Secret displays a random passcode pbkdf2-derived from the entered passcode and the random salt.</li>
+               <li>Enter passcode and paste a previously-generated salt into encrypted.  Secret displays the corresponding random passcode.</li>
+            </ul>
+            <div class="spacer">&nbsp;</div>
+            <div class="footer">&copy; 2021 danpub1, <a href="https://github.com/danpub1/little">repository on github</a></div>
+        <div>
+        <script>
+
+var totpRunes = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567abcdefghijklmnopqrstuvwxyz234567'
+var passcodeRunes = '0123456789aBCdeFHijkLmnoPQRtVWXz0123456789AbcDEfhIJKlMNOpqrTvwxZ'
+var iterations = 120000;
+
+function encodeBuf(buf, runes) {
+   var encoded = ''
+   var bitCount = buf.length * 8;
+   var ii = 0;
+   for (ii = 0; ii < bitCount; ii += 5) {
+     switch (ii % 8) {
+	     case 0: encoded += runes[((buf[Math.floor(ii / 8)] >> 3) & 0x1F)]; break; // bits 3-7
+		   case 1: encoded += runes[((buf[Math.floor(ii / 8)] >> 2) & 0x1F)]; break; // bits 2-6
+		   case 2: encoded += runes[((buf[Math.floor(ii / 8)] >> 1) & 0x1F)]; break; // bits 1-5
+		   case 3: encoded += runes[((buf[Math.floor(ii / 8)] >> 0) & 0x1F)]; break; // bits 0-4
+		   case 4: encoded += runes[((buf[Math.floor(ii / 8)] & 0x0F) << 1) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 7) & 0x01) : 0)]; break; // bits 0-3 + bit 7
+		   case 5: encoded += runes[((buf[Math.floor(ii / 8)] & 0x07) << 2) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 6) & 0x03) : 0)]; break; // bits 0-2 + bit 6-7
+		   case 6: encoded += runes[((buf[Math.floor(ii / 8)] & 0x03) << 3) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 5) & 0x07) : 0)]; break; // bits 0-1 + bit 5-7
+		   case 7: encoded += runes[((buf[Math.floor(ii / 8)] & 0x01) << 4) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 4) & 0x0F) : 0)]; break; // bit 0 + bit 4-7
+	  }
+   }
+   
+   return encoded;
+}
+
+function decodeBuf(encoded, runes) {
+   if (!encoded) {
+     return new Uint8Array(0);
+   }
+   var bitCount = Math.floor(encoded.length * 5 / 8) * 8;
+   var buf = new Uint8Array(bitCount / 8);
+   for (ii = 0; ii < bitCount; ii += 8) {
+      var cc = Math.floor(ii/5)
+      switch (ii % 5) {
+	     case 0: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x1F) << 3) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1C) >> 2); break; // 5 & 3
+	     case 1: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x0F) << 4) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1E) >> 1); break; // 4 & 4
+	     case 2: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x07) << 5) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1F) >> 0); break; // 3 & 5
+	     case 3: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x03) << 6) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1F) << 1) | (((runes.indexOf(encoded[cc+2]) % 32) & 0x10) >> 4); break; // 2 & 5 & 1
+	     case 4: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x01) << 7) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1F) << 2) | (((runes.indexOf(encoded[cc+2]) % 32) & 0x18) >> 3); break; // 1 & 5 & 2
+	  }
+   }
+   return buf;
+}
+
+function decodeString(s) {
+  if (s) {
+    var byteCount = 0;
+    for (var ii = 0; ii < s.length; ii++) {
+      var code = s.charCodeAt(ii);
+      if (code <= 0x7F) {
+        byteCount += 1;
+      } else if (code <= 0xFFFF) {
+        byteCount += 2;
+      } else if (code <= 0xFFFFFF) {
+        byteCount += 3;
+      } else {
+        byteCount += 4;
+      }
+    }
+
+    var buf = new Uint8Array(byteCount);
+    var jj = 0;
+    for (var ii = 0; ii < s.length; ii++) {
+      var code = s.charCodeAt(ii);
+      if (code <= 0x7F) {
+        buf[jj++] = code;
+      } else if (code <= 0xFFFF) {
+        buf[jj++] = (code >> 8) & 0xFF;
+        buf[jj++] = (code >> 0) & 0xFF;
+      } else if (code <= 0xFFFFFF) {
+        buf[jj++] = (code >> 16) & 0xFF;
+        buf[jj++] = (code >> 8) & 0xFF;
+        buf[jj++] = (code >> 0) & 0xFF;
+      } else {
+        buf[jj++] = (code >> 24) & 0xFF;
+        buf[jj++] = (code >> 16) & 0xFF;
+        buf[jj++] = (code >> 8) & 0xFF;
+        buf[jj++] = (code >> 0) & 0xFF;
+      }
+    }
+
+    return buf;
+  }
+  else {
+    new Uint8Array(0)
+  }
+}
+
+function encodeString(buf) {
+  if (buf) {
+    var s = ''
+    for (var ii = 0; ii < buf.length; ii++) {
+      if ((buf[ii] & 0x80) === 0) {
+        s = s + String.fromCharCode(buf[ii]);
+        ii += 0
+      } else if ((buf[ii] & 0xE0) === 0xC0) {
+        s = s + String.fromCharCode(buf[ii] * 256 + buf[ii+1]);
+        ii += 1
+      } else if ((buf[ii] & 0xF0) === 0xE0) {
+        s = s + String.fromCharCode(buf[ii] * 256 * 256 + buf[ii+1] * 256 + buf[ii+2])
+        ii += 2
+       } else if ((buf[ii] & 0xF8) === 0xF0) {
+        s = s + String.fromCharCode(buf[ii] * 256 * 256 * 256 + buf[ii+1] * 256 * 256 + buf[ii+2] * 256 + buf[ii+3])
+        ii += 3
+      }
+    }
+    return s;
+  } else {
+    return '';
+  }
+}
+
+var duringCrypt = false;
+var needCrypt = false;
+
+async function encrypt(secret, passcode, salt) {
+  duringCrypt = true;
+  const saltData = decodeBuf(salt, totpRunes);
+  const pcData = decodeString(passcode);
+  const secretData = decodeString(secret);
+  
+  try {
+    const iv = generateIV();
+    const pbkdf2key = await crypto.subtle.importKey('raw', pcData, {name: 'PBKDF2', hash: 'SHA-512'}, false, ['deriveBits'])
+    const keybits = await crypto.subtle.deriveBits({name: 'PBKDF2', hash: 'SHA-512', salt: saltData, iterations: iterations}, pbkdf2key, 256)
+    const key = await crypto.subtle.importKey('raw', keybits, {name: 'AES-GCM'}, false, ['encrypt'])
+    const bits = await crypto.subtle.encrypt({name: 'AES-GCM', iv: iv }, key, secretData);
+    const buf = new Uint8Array(bits);
+    duringCrypt = false;
+    if (needCrypt) {
+      refresh();
+    }
+    return salt + '.' + encodeBuf(iv, totpRunes) + '.' + encodeBuf(buf, totpRunes);
+  } catch {
+    duringCrypt = false;
+    if (needCrypt) {
+      refresh();
+    }
+    return salt;
+  }
+}
+
+function addBreaks(passcode, breakChar) {
+  const l = passcode.length;
+  var rv = passcode.replace((l % 2 == 0) ? /[^-]{4}/g : (l % 3 == 0) ? /[^-]{6}/g : /[^-]{5}/g, function (x) { return x + breakChar; });
+  if (rv.endsWith(breakChar)) {
+    rv = rv.substr(0, rv.length - 1);
+  }
+  return rv;
+}
+
+async function decrypt(encrypted, iv, passcode, salt) {
+  duringCrypt = true;
+  const saltData = decodeBuf(salt, totpRunes);
+  const pcData = decodeString(passcode);
+  const secretData = decodeBuf(encrypted, totpRunes);
+  const ivData = decodeBuf(iv, totpRunes);
+  var buf;
+  try {
+    if (encrypted) {
+      const pbkdf2key = await crypto.subtle.importKey('raw', pcData, {name: 'PBKDF2', hash: 'SHA-512'}, false, ['deriveBits'])
+      const keybits = await crypto.subtle.deriveBits({name: 'PBKDF2', hash: 'SHA-512', salt: saltData, iterations: iterations}, pbkdf2key, 256)
+      const key = await crypto.subtle.importKey('raw', keybits, {name: 'AES-GCM'}, false, ['decrypt'])
+      const bits = await crypto.subtle.decrypt({name: 'AES-GCM', iv: ivData }, key, secretData);
+      buf = new Uint8Array(bits);
+    } else {
+      const key = await crypto.subtle.importKey('raw', pcData, {name: 'PBKDF2', hash: 'SHA-512'}, false, ['deriveBits'])
+      const bits = await crypto.subtle.deriveBits({name: 'PBKDF2', hash: 'SHA-512', salt: saltData, iterations: iterations}, key, 160)
+      buf = new Uint8Array(bits);
+    }
+  
+    duringCrypt = false;
+    if (needCrypt) {
+      refresh();
+    }
+    return encrypted ? encodeString(buf) : addBreaks(encodeBuf(buf, passcodeRunes), '-');
+  } catch {
+    duringCrypt = false;
+    if (needCrypt) {
+      refresh();
+    }
+    return '';
+  }
+}
+
+function generateIV() {
+  var randBytes = new Uint8Array(96/8); // 96 bits is recommended for the IV
+  window.crypto.getRandomValues(randBytes);
+  return randBytes;
+}
+
+function generateSalt() {
+  var randBytes = new Uint8Array(128/8); // 128 bits is recommended for the salt
+  window.crypto.getRandomValues(randBytes);
+  return encodeBuf(randBytes, totpRunes);
+}
+
+function refreshSecret() {
+  mode = 'encrypting';
+  secret = document.getElementById('secret').value;
+  passcode = document.getElementById('passcode').value;
+  salt = generateSalt();
+  document.getElementById('encrypted').value = salt;
+
+  if (duringCrypt) {
+    needCrypt = true;
+    return;
+  }
+  needCrypt = false;
+  encrypt(secret, passcode, salt)
+    .then(encrypted => {
+      document.getElementById('secret').classList = "encoded"
+      document.getElementById('encrypted').classList = "encoded"
+      document.getElementById('encrypted').value = encrypted;
+      setTimeout(function () { document.getElementById('encrypted').classList = "encoded flash" }, 100)
+    })
+    .catch(alert);
+}
+
+function refreshEncrypted() {
+  mode = 'decrypting';
+  passcode = document.getElementById('passcode').value;
+  salt = document.getElementById('encrypted').value.split('.',3)[0];
+  iv = document.getElementById('encrypted').value.split('.',3)[1];
+  encrypted = document.getElementById('encrypted').value.split('.',3)[2];
+  if (!salt) {
+    salt = generateSalt();
+    document.getElementById('encrypted').value = salt;
+  }
+  if (duringCrypt) {
+    needCrypt = true;
+    return;
+  }
+  needCrypt = false;
+  decrypt(encrypted, iv, passcode, salt).then(decrypted => {
+    document.getElementById('secret').classList = "encoded"
+    document.getElementById('encrypted').classList = "encoded"
+    document.getElementById('secret').value = decrypted;
+    setTimeout(function () { document.getElementById('secret').classList = "encoded flash" }, 100)
+  }).catch(alert);
+}
+
+var mode = 'decrypting'
+
+function refresh() {
+  if (mode === 'encrypting') {
+    refreshSecret();
+  } else {
+    refreshEncrypted();
+  }
+}
+
+document.getElementById('encrypted').value = generateSalt(); 
+document.getElementById('secret').addEventListener('input', e => refreshSecret())
+document.getElementById('passcode').addEventListener('input', e => refresh())
+document.getElementById('encrypted').addEventListener('input', e => refreshEncrypted())
+        </script>
+    </body>
+</html>

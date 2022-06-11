@@ -7,6 +7,8 @@
         <title>little encryptor / decryptor</title>
 
         <style>
+            th{font-weight:unset;text-align:unset}@media print{html{background-color:#FFF !important}a,a:visited{text-decoration:underline}p,img{page-break-inside:avoid !important;break-inside:avoid !important}}html{background-color:#f4f4f4}body{background-color:#FFF;color:#000}strong{color:#000}h1,h2,h3,h4,h5,h6{color:#000}blockquote{border-left-color:#f4f4f4}hr,.vscode-dark hr,.vscode-light hr{border-color:#f4f4f4}h1,.vscode-dark h1,.vscode-light h1,h2,.vscode-dark h2,.vscode-light h2{border-bottom-color:#f4f4f4}html{font-size:16px}body{font-family:'Merriweather','Georgia','Times New Roman',serif;font-weight:300;word-spacing:.1em;letter-spacing:0;line-height:150%}body strong{font-weight:700}pre,code{font-family:'Fira Code','Fira Mono','Courier New',monospace;line-height:133%;font-weight:700;word-spacing:0;letter-spacing:0;line-height:inherit}h1,h2,h3,h4,h5,h6{font-family:'Fira Sans','Trebuchet MS','Arial Black','Arial','Helvetica',sans-serif;font-weight:inherit;word-spacing:0;letter-spacing:0;line-height:110%}h1,h2,h3,h4,h5,h6{font-weight:300}h1 strong,h2 strong,h3 strong,h4 strong,h5 strong,h6 strong{font-weight:700}p{font-size:1rem}h1{font-size:2.618rem}h2{font-size:2.058rem}h3{font-size:1.618rem}h4{font-size:1.272rem}h5{font-size:1.000rem}h6{font-size:.786rem}h1>code{font-size:2.058rem}h2>code{font-size:1.618rem}h3>code{font-size:1.272rem}h4>code{font-size:1rem}h5>code{font-size:.786rem}h6>code{font-size:.618rem}html{max-width:100%}body{max-width:64rem;margin:0 auto;padding:1rem 1rem 1rem 1rem;word-wrap:break-word}table{width:100%}p,h1,h2,h3,h4,h5,h6,blockquote,pre,table,ol,ul{margin:1.272rem 0 0 0}li>ul,li>ol{margin-top:0}hr{margin:0}body>*:first-child,body>*:first-child>*:first-child,body>*:first-child>*:first-child>*:first-child,body>*:first-child>*:first-child>*:first-child>*:first-child,body>*:first-child>*:first-child>*:first-child>*:first-child>*:first-child,body>*:first-child>*:first-child>*:first-child>*:first-child>*:first-child>*:first-child,body>*:first-child>*:first-child>*:first-child>*:first-child>*:first-child>*:first-child>*:first-child{margin-top:0}blockquote>*:last-child{margin-bottom:1.272rem}blockquote>*:first-child{margin-top:1.272rem}blockquote{border-left-width:8px;border-left-style:solid;padding:0 1.272rem 0 1.272rem}hr,.vscode-dark hr,.vscode-light hr{height:0;border-width:1px;border-style:solid}h1,h2{border-bottom-width:2px;border-bottom-style:solid}h1{margin-top:2.618rem}h2{margin-top:2.058rem}h3{margin-top:1.618rem}h4{margin-top:1.272rem}h5{margin-top:1.272rem}h6{margin-top:1.272rem}img{display:block;max-width:100%;margin-left:auto;margin-right:auto;page-break-inside:avoid !important;break-inside:avoid !important}
+            h2 { border: none; }
             @keyframes flash {
               0% { background-color: #FF7F7F }
               100% { background-color: white }
@@ -15,13 +17,6 @@
               animation-name: flash;
               animation-duration: 1s;
             }
-            body {
-                font-family: 'Fira Mono', 'Fira Code', Cousine, Consolas, 'Courier New', 'Lucida Sans Typewriter', Monaco, 'Andale Mono', Courier, monospace; 
-                font-size: 15px; 
-                text-align: left; 
-                line-height: 1.30;
-                font-variant-ligatures: none;
-            }
             ul {
               margin: 0;
             }
@@ -29,53 +24,61 @@
               font-family: 'Fira Mono', 'Fira Code', Cousine, Consolas, 'Courier New', 'Lucida Sans Typewriter', Monaco, 'Andale Mono', Courier, monospace; 
               font-size: 15px;
             }
-            .leader { font-size: 15px; }
-            .spacer { font-size: 9px; }
+            .leader { font-size: 15px; padding-bottom: 0.75em; }
             .footer { font-size: 13px; }
-            .bodydiv { margin:0 auto; width:800px; }
             .title {  margin-bottom:0; margin-top:0 }
         </style>
     </head>
     <body>
-        <div class="bodydiv" >
-            <h2 class="title">little encryptor / decryptor</h2>
-            <b class="leader">A crypto.subtle-based tool</b>
-            <div class="spacer">&nbsp;</div>
-            <div><b>Passcode:&nbsp;</b> <input id="passcode" type="text" value="" size="75" class="encoded"/></div>
-            <div><b>Secret:&nbsp;&nbsp;&nbsp;</b> <input id="secret" type="text" class="encoded" value="" size="75"/></div>
-            <div><b>Encrypted:</b> <input id="encrypted" type="text" class="encoded" value="" size="75"/> </div>
-            <div class="spacer">&nbsp;</div>
-            <div><b>Instructions:</b></div>
-            <ul>
-               <li>Enter passcode and secret to encrypt.</li>
-               <li>Enter passcode and paste a previously encrypted value to display the secret that was encrypted</li>
-               <li>Enter passcode and delete the contents of encrypted to generate a new random salt.  Secret displays a random passcode pbkdf2-derived from the entered passcode and the random salt.</li>
-               <li>Enter passcode and paste a previously-generated salt into encrypted.  Secret displays the corresponding random passcode.</li>
-            </ul>
-            <div class="spacer">&nbsp;</div>
-            <div class="footer">&copy; 2021 danpub1, <a href="https://github.com/danpub1/little">repository on github</a></div>
-        <div>
-        <script>
-
-var totpRunes = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567abcdefghijklmnopqrstuvwxyz234567'
-var passcodeRunes = '0123456789aBCdeFHijkLmnoPQRtVWXz0123456789AbcDEfhIJKlMNOpqrTvwxZ'
+      <h2 class="title">little encryptor / decryptor</h2>
+      <div class="leader"><b>A crypto.subtle-based tool</b></div>
+      <div><b>Passcode:</b></div><div><input id="passcode" type="text" value="" style="width:calc(100% - 1em);" class="encoded"/></div>
+      <div><b>Secret:</b></div><div><textarea rows="7" style="width:calc(100% - 1em);" id="secret" class="encoded"></textarea></div>
+      <div><b>Encrypted:</b> <a id="encryptedLink" href="">(link)</a></div><div><input id="encrypted" type="text" class="encoded" value="" style="width:calc(100% - 1em)"/></div>
+      <div style="padding-top: 0.75em"><b>Instructions:</b></div>
+      <ul>
+          <li>Enter passcode and secret, and press Tab to encrypt.</li>
+          <li>Enter passcode, paste a previously encrypted value, and press Enter to display the secret that was encrypted</li>
+          <li>Enter passcode, delete the contents of encrypted, and press Enter to generate a new random salt.  Secret displays a random passcode pbkdf2-derived from the entered passcode and the random salt.</li>
+          <li>Enter passcode, paste a previously-generated salt into encrypted and press Enter.  Secret displays the corresponding random passcode.</li>
+      </ul>
+      <div class="spacer">&nbsp;</div>
+      <div class="footer">&copy; 2022 danpub1, <a href="https://github.com/danpub1/little">repository on github</a></div>
+      <script>
+var totpRunes =     'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567abcdefghijklmnopqrstuvwxyz234567';
+var passcodeRunes = '0123456789aBCdeFHijkLmnoPQRtVWXz0123456789AbcDEfhIJKlMNOpqrTvwxZ';
+var b64Runes =      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+var useRunes = b64Runes;
 var iterations = 120000;
 
 function encodeBuf(buf, runes) {
    var encoded = ''
    var bitCount = buf.length * 8;
    var ii = 0;
-   for (ii = 0; ii < bitCount; ii += 5) {
-     switch (ii % 8) {
-	     case 0: encoded += runes[((buf[Math.floor(ii / 8)] >> 3) & 0x1F)]; break; // bits 3-7
-		   case 1: encoded += runes[((buf[Math.floor(ii / 8)] >> 2) & 0x1F)]; break; // bits 2-6
-		   case 2: encoded += runes[((buf[Math.floor(ii / 8)] >> 1) & 0x1F)]; break; // bits 1-5
-		   case 3: encoded += runes[((buf[Math.floor(ii / 8)] >> 0) & 0x1F)]; break; // bits 0-4
-		   case 4: encoded += runes[((buf[Math.floor(ii / 8)] & 0x0F) << 1) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 7) & 0x01) : 0)]; break; // bits 0-3 + bit 7
-		   case 5: encoded += runes[((buf[Math.floor(ii / 8)] & 0x07) << 2) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 6) & 0x03) : 0)]; break; // bits 0-2 + bit 6-7
-		   case 6: encoded += runes[((buf[Math.floor(ii / 8)] & 0x03) << 3) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 5) & 0x07) : 0)]; break; // bits 0-1 + bit 5-7
-		   case 7: encoded += runes[((buf[Math.floor(ii / 8)] & 0x01) << 4) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 4) & 0x0F) : 0)]; break; // bit 0 + bit 4-7
-	  }
+   if (runes === totpRunes || runes === passcodeRunes) {
+      for (ii = 0; ii < bitCount; ii += 5) {
+         switch (ii % 8) {
+	          case 0: encoded += runes[((buf[Math.floor(ii / 8)] >> 3) & 0x1F)]; break; // bits 3-7
+		        case 1: encoded += runes[((buf[Math.floor(ii / 8)] >> 2) & 0x1F)]; break; // bits 2-6
+		        case 2: encoded += runes[((buf[Math.floor(ii / 8)] >> 1) & 0x1F)]; break; // bits 1-5
+		        case 3: encoded += runes[((buf[Math.floor(ii / 8)] >> 0) & 0x1F)]; break; // bits 0-4
+		        case 4: encoded += runes[((buf[Math.floor(ii / 8)] & 0x0F) << 1) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 7) & 0x01) : 0)]; break; // bits 0-3 + bit 7
+		        case 5: encoded += runes[((buf[Math.floor(ii / 8)] & 0x07) << 2) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 6) & 0x03) : 0)]; break; // bits 0-2 + bit 6-7
+		        case 6: encoded += runes[((buf[Math.floor(ii / 8)] & 0x03) << 3) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 5) & 0x07) : 0)]; break; // bits 0-1 + bit 5-7
+		        case 7: encoded += runes[((buf[Math.floor(ii / 8)] & 0x01) << 4) + (ii + 5 < bitCount ? ((buf[Math.floor((ii + 5) / 8)] >> 4) & 0x0F) : 0)]; break; // bit 0 + bit 4-7
+	       }
+      }
+   } else if (runes === b64Runes) {
+    for (ii = 0; ii < bitCount; ii += 6) {
+         switch (ii % 8) {
+	          case 0: encoded += runes[((buf[Math.floor(ii / 8)] >> 2) & 0x3F)]; break; // bits 2-7
+		        case 2: encoded += runes[((buf[Math.floor(ii / 8)] >> 0) & 0x3F)]; break; // bits 0-5
+		        case 4: encoded += runes[((buf[Math.floor(ii / 8)] & 0x0F) << 2) + (ii + 6 < bitCount ? ((buf[Math.floor((ii + 6) / 8)] >> 6) & 0x03) : 0)]; break; // bits 0-3 + bit 6-7
+		        case 6: encoded += runes[((buf[Math.floor(ii / 8)] & 0x03) << 4) + (ii + 6 < bitCount ? ((buf[Math.floor((ii + 6) / 8)] >> 4) & 0x0F) : 0)]; break; // bits 0-1 + bit 4-7
+	       }
+      }
+   } else if (!runes) {
+     encoded = btoa(Uint8ArrayToBinaryString(buf))
    }
    
    return encoded;
@@ -85,19 +88,37 @@ function decodeBuf(encoded, runes) {
    if (!encoded) {
      return new Uint8Array(0);
    }
-   var bitCount = Math.floor(encoded.length * 5 / 8) * 8;
-   var buf = new Uint8Array(bitCount / 8);
-   for (ii = 0; ii < bitCount; ii += 8) {
-      var cc = Math.floor(ii/5)
-      switch (ii % 5) {
-	     case 0: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x1F) << 3) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1C) >> 2); break; // 5 & 3
-	     case 1: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x0F) << 4) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1E) >> 1); break; // 4 & 4
-	     case 2: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x07) << 5) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1F) >> 0); break; // 3 & 5
-	     case 3: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x03) << 6) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1F) << 1) | (((runes.indexOf(encoded[cc+2]) % 32) & 0x10) >> 4); break; // 2 & 5 & 1
-	     case 4: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x01) << 7) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1F) << 2) | (((runes.indexOf(encoded[cc+2]) % 32) & 0x18) >> 3); break; // 1 & 5 & 2
-	  }
+   if (runes === totpRunes || runes === passcodeRunes) {
+      var bitCount = Math.floor(encoded.length * 5 / 8) * 8;
+      var buf = new Uint8Array(bitCount / 8);
+      for (ii = 0; ii < bitCount; ii += 8) {
+         var cc = Math.floor(ii/5)
+         switch (ii % 5) {
+	          case 0: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x1F) << 3) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1C) >> 2); break; // 5 & 3
+	          case 1: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x0F) << 4) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1E) >> 1); break; // 4 & 4
+	          case 2: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x07) << 5) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1F) >> 0); break; // 3 & 5
+	          case 3: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x03) << 6) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1F) << 1) | (((runes.indexOf(encoded[cc+2]) % 32) & 0x10) >> 4); break; // 2 & 5 & 1
+	          case 4: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 32) & 0x01) << 7) | (((runes.indexOf(encoded[cc+1]) % 32) & 0x1F) << 2) | (((runes.indexOf(encoded[cc+2]) % 32) & 0x18) >> 3); break; // 1 & 5 & 2
+	       }
+      }
+      return buf;
+   } else if (runes === b64Runes) {
+      var bitCount = Math.floor(encoded.length * 6 / 8) * 8;
+      var buf = new Uint8Array(bitCount / 8);
+      for (ii = 0; ii < bitCount; ii += 8) {
+         var cc = Math.floor(ii/6)
+         switch (ii % 6) {
+	          case 0: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 64) & 0x3F) << 2) | (((runes.indexOf(encoded[cc+1]) % 64) & 0x30) >> 4); break; // 6 & 2
+	          case 2: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 64) & 0x0F) << 4) | (((runes.indexOf(encoded[cc+1]) % 64) & 0x3C) >> 2); break; // 4 & 4
+	          case 4: buf[ii/8] = (((runes.indexOf(encoded[cc]) % 64) & 0x03) << 6) | (((runes.indexOf(encoded[cc+1]) % 64) & 0x3F) >> 0); break; // 2 & 6
+	       }
+      }
+      return buf;
+   } else if (!runes) {
+     return BinaryStringToUint8Array(atob(encoded))
+   } else {
+     return new Uint8Array(0);
    }
-   return buf;
 }
 
 function decodeString(s) {
@@ -168,14 +189,34 @@ function encodeString(buf) {
   }
 }
 
+function Uint8ArrayToBinaryString(buf) {
+  var s = ''
+  if (buf) {
+    buf.forEach(c => s += String.fromCharCode(c))
+  }
+  return s;
+}
+
+function BinaryStringToUint8Array(s) {
+  if (s) {
+    return Uint8Array.from(s.split(""), cc => cc.charCodeAt(0))
+  } else {
+    return new Uint8Array(0)
+  }
+}
+
 var duringCrypt = false;
 var needCrypt = false;
 
 async function encrypt(secret, passcode, salt) {
   duringCrypt = true;
-  const saltData = decodeBuf(salt, totpRunes);
+  const saltData = decodeBuf(salt, useRunes);
   const pcData = decodeString(passcode);
   const secretData = decodeString(secret);
+
+  var tt = decodeBuf(salt, useRunes);
+  var uu = encodeBuf(tt, useRunes);
+  var vv = decodeBuf(uu, useRunes);
   
   try {
     const iv = generateIV();
@@ -188,7 +229,7 @@ async function encrypt(secret, passcode, salt) {
     if (needCrypt) {
       refresh();
     }
-    return salt + '.' + encodeBuf(iv, totpRunes) + '.' + encodeBuf(buf, totpRunes);
+    return salt + '.' + encodeBuf(iv, useRunes) + '.' + encodeBuf(buf, useRunes);
   } catch {
     duringCrypt = false;
     if (needCrypt) {
@@ -209,10 +250,10 @@ function addBreaks(passcode, breakChar) {
 
 async function decrypt(encrypted, iv, passcode, salt) {
   duringCrypt = true;
-  const saltData = decodeBuf(salt, totpRunes);
+  const saltData = decodeBuf(salt, useRunes);
   const pcData = decodeString(passcode);
-  const secretData = decodeBuf(encrypted, totpRunes);
-  const ivData = decodeBuf(iv, totpRunes);
+  const secretData = decodeBuf(encrypted, useRunes);
+  const ivData = decodeBuf(iv, useRunes);
   var buf;
   try {
     if (encrypted) {
@@ -250,7 +291,11 @@ function generateIV() {
 function generateSalt() {
   var randBytes = new Uint8Array(128/8); // 128 bits is recommended for the salt
   window.crypto.getRandomValues(randBytes);
-  return encodeBuf(randBytes, totpRunes);
+  return encodeBuf(randBytes, useRunes);
+}
+
+function makeHref(val) {
+  return document.URL.split('#')[0] + '#' + val;
 }
 
 function refreshSecret() {
@@ -259,6 +304,7 @@ function refreshSecret() {
   passcode = document.getElementById('passcode').value;
   salt = generateSalt();
   document.getElementById('encrypted').value = salt;
+  document.getElementById('encryptedLink').href = makeHref(salt);
 
   if (duringCrypt) {
     needCrypt = true;
@@ -270,6 +316,7 @@ function refreshSecret() {
       document.getElementById('secret').classList = "encoded"
       document.getElementById('encrypted').classList = "encoded"
       document.getElementById('encrypted').value = encrypted;
+      document.getElementById('encryptedLink').href = makeHref(encrypted);
       setTimeout(function () { document.getElementById('encrypted').classList = "encoded flash" }, 100)
     })
     .catch(alert);
@@ -280,10 +327,12 @@ function refreshEncrypted() {
   passcode = document.getElementById('passcode').value;
   salt = document.getElementById('encrypted').value.split('.',3)[0];
   iv = document.getElementById('encrypted').value.split('.',3)[1];
+  document.getElementById('encryptedLink').href = makeHref(document.getElementById('encrypted').value);
   encrypted = document.getElementById('encrypted').value.split('.',3)[2];
   if (!salt) {
     salt = generateSalt();
     document.getElementById('encrypted').value = salt;
+    document.getElementById('encryptedLink').href = makeHref(salt);
   }
   if (duringCrypt) {
     needCrypt = true;
@@ -308,10 +357,17 @@ function refresh() {
   }
 }
 
-document.getElementById('encrypted').value = generateSalt(); 
-document.getElementById('secret').addEventListener('input', e => refreshSecret())
-document.getElementById('passcode').addEventListener('input', e => refresh())
-document.getElementById('encrypted').addEventListener('input', e => refreshEncrypted())
+if (document.URL.split('#').length === 2) {
+  document.getElementById('encrypted').value = document.URL.split('#')[1];
+  history.replaceState(history.state, '', document.URL.split('#')[0])
+} else {
+  document.getElementById('encrypted').value = generateSalt(); 
+}
+
+document.getElementById('encryptedLink').href = makeHref(document.getElementById('encrypted').value);
+document.getElementById('secret').addEventListener('change', e => refreshSecret())
+document.getElementById('passcode').addEventListener('change', e => refresh())
+document.getElementById('encrypted').addEventListener('change', e => refreshEncrypted())
         </script>
     </body>
 </html>

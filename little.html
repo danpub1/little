@@ -33,13 +33,16 @@
     <body>
       <h2 class="title"><b>little encryptor / decryptor</b></h2>
       <div class="leader"><b>A crypto.subtle-based tool</b></div>
+      <div><b>Name:</b></div><div><input id="name" type="text" value="" style="width:calc(100% - 1em);" class="encoded"/></div>
       <div><b>Passcode:</b></div><div><input id="passcode" type="text" value="" style="width:calc(100% - 1em);" class="encoded"/></div>
       <div><b>Secret:</b></div><div><textarea rows="7" style="width:calc(100% - 1em);" id="secret" class="encoded"></textarea></div>
       <div><b>Encrypted:</b> <a id="encryptedLink" href="">(link)</a></div><div><input id="encrypted" type="text" class="encoded" value="" style="width:calc(100% - 1em)"/></div>
       <div style="padding-top: 0.75em"><b>Instructions:</b></div>
       <ul>
-          <li>Enter passcode and secret, and press Tab to encrypt.</li>
+          <li>Enter passcode and secret, and press Tab to encrypt</li>
           <li>Enter passcode, paste a previously encrypted value, and press Enter to display the secret that was encrypted</li>
+          <li>Click on the link and bookmark it to save the encrypted value, or copy the link to share it using another app</li>
+          <li>Enter a name to have the encrypted secret stored to and retrieved from localStorage, if your browser profile allows it</li>
       </ul>
       <div class="spacer">&nbsp;</div>
       <div class="footer">&copy; 2022 danpub1, <a href="https://github.com/danpub1/little">repository on github</a>, Lock adapted from <a href="https://github.com/mozilla/fxemoji/blob/gh-pages/LICENSE.md">Mozilla's Emoji</a></div>
@@ -234,7 +237,7 @@ async function encrypt(secret, passcode, salt) {
     if (needCrypt) {
       refresh();
     }
-    return salt;
+    return '';
   }
 }
 
@@ -305,6 +308,7 @@ function refreshSecret() {
   salt = generateSalt();
   document.getElementById('encrypted').value = salt;
   document.getElementById('encryptedLink').href = makeHref(salt);
+  itemName = document.getElementById('name').value;
 
   if (duringCrypt) {
     needCrypt = true;
@@ -317,6 +321,12 @@ function refreshSecret() {
       document.getElementById('encrypted').classList = "encoded"
       document.getElementById('encrypted').value = encrypted;
       document.getElementById('encryptedLink').href = makeHref(encrypted);
+      if (itemName) {
+        if (encrypted)
+           window.localStorage.setItem(itemName, encrypted);
+        else
+           window.localStorage.removeItem(itemName);
+      }
       setTimeout(function () { document.getElementById('encrypted').classList = "encoded flash" }, 100)
     })
     .catch(alert);
@@ -357,6 +367,15 @@ function refresh() {
   }
 }
 
+function nameChanged() {
+  itemName = document.getElementById('name').value;
+  if (itemName) {
+    encrypted = window.localStorage.getItem(itemName);
+    document.getElementById('encrypted').value = encrypted;
+    refreshEncrypted();
+  }
+}
+
 if (document.URL.split('#').length === 2) {
   document.getElementById('encrypted').value = document.URL.split('#')[1];
   history.replaceState(history.state, '', document.URL.split('#')[0])
@@ -368,6 +387,7 @@ document.getElementById('encryptedLink').href = makeHref(document.getElementById
 document.getElementById('secret').addEventListener('change', e => refreshSecret())
 document.getElementById('passcode').addEventListener('change', e => refresh())
 document.getElementById('encrypted').addEventListener('change', e => refreshEncrypted())
+document.getElementById('name').addEventListener('change', e => nameChanged())
         </script>
     </body>
 </html>
